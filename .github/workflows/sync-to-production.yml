@@ -16,6 +16,9 @@ jobs:
     name: Sync develop to main and deploy
     runs-on: ubuntu-latest
     if: github.event.inputs.confirm_sync == 'sync'
+    permissions:
+      contents: write
+      pull-requests: write
     
     steps:
       - name: Checkout code
