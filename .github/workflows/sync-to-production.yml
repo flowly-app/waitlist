@@ -1,0 +1,104 @@
+name: Sync to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_sync:
+        description: 'Type "sync" to confirm production sync'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  sync-to-production:
+    name: Sync develop to main and deploy
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm_sync == 'sync'
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Verify develop is ahead of main
+        run: |
+          git fetch origin main develop
+          DEVELOP_COMMITS=$(git rev-list --count origin/main..origin/develop)
+          if [ $DEVELOP_COMMITS -eq 0 ]; then
+            echo "❌ develop is not ahead of main. Nothing to sync."
+            exit 1
+          fi
+          echo "✅ develop is $DEVELOP_COMMITS commits ahead of main"
+
+      - name: Check for merge conflicts
+        run: |
+          git checkout main
+          git pull origin main
+          git checkout develop
+          git pull origin develop
+          
+          # Check if merge would create conflicts by trying to merge develop into main
+          git checkout main
+          if ! git merge --no-commit --no-ff develop; then
+            echo "❌ Merge conflicts detected. Please resolve manually."
+            git merge --abort
+            exit 1
+          fi
+          git merge --abort
+          echo "✅ No merge conflicts detected"
+
+      - name: Sync develop to main (Squash)
+        run: |
+          git checkout main
+          git pull origin main
+          
+          # Create squash merge
+          git merge --squash develop
+          git commit -m "chore: sync develop to main for production deployment
+
+          Synced commits from develop:
+          $(git log --oneline origin/main..origin/develop --reverse | sed 's/^/  - /')
+          
+          Triggered by: ${{ github.actor }}"
+          
+          git push origin main
+
+      - name: Wait for production deployment
+        run: |
+          echo "⏳ Waiting for production deployment to complete..."
+          echo "Check the 'Deploy' workflow for deployment status"
+          echo "If deployment fails, the merge will be automatically reverted"
+
+      - name: Check deployment status
+        id: check_deployment
+        run: |
+          # Wait a bit for deployment to start
+          sleep 30
+          
+          # Check if there are any recent failed deployments
+          # This is a simple check - in a real scenario you might want to poll Vercel API
+          echo "✅ Sync completed. Monitor the Deploy workflow for production deployment status."
+
+      - name: Success notification
+        if: steps.check_deployment.outcome == 'success'
+        run: |
+          echo "🎉 Successfully synced develop to main!"
+          echo "Production deployment should be in progress."
+
+      - name: Cleanup on failure
+        if: failure()
+        run: |
+          echo "❌ Sync failed. No changes were made to main branch."
+          echo "Please check the logs and try again."

@@ -1,0 +1,59 @@
+name: Auto Revert on Deployment Failure
+
+on:
+  workflow_run:
+    workflows: ["Deploy"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  check-and-revert:
+    name: Check deployment and revert if failed
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'failure'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Check if last commit was a sync commit
+        id: check_sync
+        run: |
+          LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+          if [[ $LAST_COMMIT_MSG == *"sync develop to main for production deployment"* ]]; then
+            echo "is_sync=true" >> $GITHUB_OUTPUT
+            echo "✅ Last commit was a sync commit, proceeding with revert"
+          else
+            echo "is_sync=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Last commit was not a sync commit, skipping revert"
+          fi
+
+      - name: Revert sync commit
+        if: steps.check_sync.outputs.is_sync == 'true'
+        run: |
+          # Get the commit hash before the sync
+          PREVIOUS_COMMIT=$(git log -2 --pretty=%H | tail -1)
+          
+          # Reset to previous commit
+          git reset --hard $PREVIOUS_COMMIT
+          
+          # Force push to revert
+          git push origin main --force
+          
+          echo "🔄 Reverted sync commit due to deployment failure"
+          echo "Previous commit: $PREVIOUS_COMMIT"
+
+      - name: Revert notification
+        if: steps.check_sync.outputs.is_sync == 'true'
+        run: |
+          echo "❌ Production deployment failed!"
+          echo "🔄 Automatically reverted the sync commit"
+          echo "Please check the deployment logs and fix issues before trying again"
