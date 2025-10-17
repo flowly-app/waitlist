@@ -14,6 +14,10 @@ Flowly Waitlist is a streamlined application designed to capture user interest a
 - **Linting**: ESLint with TypeScript support
 - **Styling**: CSS (ready for Tailwind CSS integration)
 
+## Quick Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/flowly-app/waitlist)
+
 ## Setup / Installation
 
 1. **Clone the repository**
