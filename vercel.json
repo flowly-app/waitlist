@@ -1,6 +1,5 @@
 {
 	"version": 2,
-	"name": "flowly-waitlist",
 	"builds": [
 		{
 			"src": "package.json",
@@ -59,10 +58,5 @@
 	],
 	"env": {
 		"NODE_ENV": "production"
-	},
-	"functions": {
-		"app/api/**/*.js": {
-			"runtime": "nodejs20.x"
-		}
 	}
 }
