@@ -64,22 +64,7 @@ jobs:
       - name: Determine deployment strategy
         id: deployment-check
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "should-deploy-dev=true" >> $GITHUB_OUTPUT
-            echo "should-deploy-prod=false" >> $GITHUB_OUTPUT
-            echo "should-sync-to-production=false" >> $GITHUB_OUTPUT
-            echo "environment=dev" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "should-deploy-dev=true" >> $GITHUB_OUTPUT
-            echo "should-deploy-prod=false" >> $GITHUB_OUTPUT
-            echo "should-sync-to-production=false" >> $GITHUB_OUTPUT
-            echo "environment=dev" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "should-deploy-dev=false" >> $GITHUB_OUTPUT
-            echo "should-deploy-prod=true" >> $GITHUB_OUTPUT
-            echo "should-sync-to-production=false" >> $GITHUB_OUTPUT
-            echo "environment=prod" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             if [[ "${{ github.event.inputs.environment }}" == "dev" ]]; then
               echo "should-deploy-dev=true" >> $GITHUB_OUTPUT
               echo "should-deploy-prod=false" >> $GITHUB_OUTPUT
@@ -96,6 +81,21 @@ jobs:
               fi
               echo "environment=prod" >> $GITHUB_OUTPUT
             fi
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "should-deploy-dev=true" >> $GITHUB_OUTPUT
+            echo "should-deploy-prod=false" >> $GITHUB_OUTPUT
+            echo "should-sync-to-production=false" >> $GITHUB_OUTPUT
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "should-deploy-dev=true" >> $GITHUB_OUTPUT
+            echo "should-deploy-prod=false" >> $GITHUB_OUTPUT
+            echo "should-sync-to-production=false" >> $GITHUB_OUTPUT
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "should-deploy-dev=false" >> $GITHUB_OUTPUT
+            echo "should-deploy-prod=true" >> $GITHUB_OUTPUT
+            echo "should-sync-to-production=false" >> $GITHUB_OUTPUT
+            echo "environment=prod" >> $GITHUB_OUTPUT
           else
             echo "should-deploy-dev=false" >> $GITHUB_OUTPUT
             echo "should-deploy-prod=false" >> $GITHUB_OUTPUT
