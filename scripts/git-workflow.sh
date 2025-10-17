@@ -1,0 +1,124 @@
+#!/bin/bash
+
+# Git Workflow Helper Script for Flowly Waitlist
+# Usage: ./scripts/git-workflow.sh <command> [options]
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Helper functions
+print_help() {
+    echo -e "${BLUE}Git Workflow Helper for Flowly Waitlist${NC}"
+    echo ""
+    echo "Usage: $0 <command> [options]"
+    echo ""
+    echo "Commands:"
+    echo "  start <feature-name>    Create a new feature branch from develop"
+    echo "  finish                 Complete current feature and create PR"
+    echo "  sync                   Sync with develop branch"
+    echo "  status                 Show current git status"
+    echo "  help                   Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0 start add-login"
+    echo "  $0 finish"
+    echo "  $0 sync"
+}
+
+start_feature() {
+    local feature_name=$1
+    if [ -z "$feature_name" ]; then
+        echo -e "${RED}Error: Feature name is required${NC}"
+        echo "Usage: $0 start <feature-name>"
+        exit 1
+    fi
+    
+    echo -e "${YELLOW}Starting new feature: $feature_name${NC}"
+    
+    # Ensure we're on develop
+    git checkout develop
+    git pull origin develop 2>/dev/null || echo "No remote origin set yet"
+    
+    # Create feature branch
+    git checkout -b "feature/$feature_name"
+    
+    echo -e "${GREEN}✓ Created feature branch: feature/$feature_name${NC}"
+    echo -e "${BLUE}You can now start working on your feature${NC}"
+}
+
+finish_feature() {
+    local current_branch=$(git branch --show-current)
+    
+    if [[ ! $current_branch =~ ^feature/ ]]; then
+        echo -e "${RED}Error: You must be on a feature branch to finish${NC}"
+        echo "Current branch: $current_branch"
+        exit 1
+    fi
+    
+    echo -e "${YELLOW}Finishing feature: $current_branch${NC}"
+    
+    # Check if there are uncommitted changes
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+        echo -e "${YELLOW}You have uncommitted changes. Please commit them first.${NC}"
+        git status
+        exit 1
+    fi
+    
+    # Push the branch
+    git push origin "$current_branch" 2>/dev/null || echo "No remote origin set yet"
+    
+    echo -e "${GREEN}✓ Feature branch pushed: $current_branch${NC}"
+    echo -e "${BLUE}Next steps:${NC}"
+    echo "1. Create a Pull Request to merge into develop"
+    echo "2. Use: gh pr create --title \"Your PR Title\" --body \"Description\""
+}
+
+sync_with_develop() {
+    echo -e "${YELLOW}Syncing with develop branch${NC}"
+    
+    # Switch to develop and pull latest
+    git checkout develop
+    git pull origin develop 2>/dev/null || echo "No remote origin set yet"
+    
+    echo -e "${GREEN}✓ Synced with develop${NC}"
+}
+
+show_status() {
+    echo -e "${BLUE}Current Git Status:${NC}"
+    git status
+    echo ""
+    echo -e "${BLUE}Current Branch:${NC} $(git branch --show-current)"
+    echo -e "${BLUE}Recent Commits:${NC}"
+    git log --oneline -5
+}
+
+# Main script logic
+case "$1" in
+    "start")
+        start_feature "$2"
+        ;;
+    "finish")
+        finish_feature
+        ;;
+    "sync")
+        sync_with_develop
+        ;;
+    "status")
+        show_status
+        ;;
+    "help"|"-h"|"--help")
+        print_help
+        ;;
+    *)
+        echo -e "${RED}Error: Unknown command '$1'${NC}"
+        echo ""
+        print_help
+        exit 1
+        ;;
+esac
