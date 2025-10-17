@@ -540,13 +540,28 @@ jobs:
           VITE_APP_ENV: prod
 
       - name: Deploy to Vercel (Production)
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./
-          vercel-args: '--prod'
+        run: |
+          # Install Vercel CLI
+          npm install -g vercel@latest
+          
+          # Set environment variables for Vercel
+          export VERCEL_ORG_ID="${{ secrets.VERCEL_ORG_ID }}"
+          export VERCEL_PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID }}"
+          
+          # Deploy to production with explicit branch metadata
+          vercel --prod \
+            --token="${{ secrets.VERCEL_TOKEN }}" \
+            --meta githubCommitSha="$(git rev-parse HEAD)" \
+            --meta githubCommitAuthorName="$(git log -1 --pretty=format:'%an')" \
+            --meta githubCommitAuthorLogin="$(git log -1 --pretty=format:'%an')" \
+            --meta githubDeployment="1" \
+            --meta githubOrg="flowly-app" \
+            --meta githubRepo="waitlist" \
+            --meta githubCommitOrg="flowly-app" \
+            --meta githubCommitRepo="waitlist" \
+            --meta githubCommitMessage="$(git log -1 --pretty=format:'%s')" \
+            --meta githubCommitRef="main" \
+            --yes
         env:
           GITHUB_REF: refs/heads/main
           GITHUB_HEAD_REF: ''
