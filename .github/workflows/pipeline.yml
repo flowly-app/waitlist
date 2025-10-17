@@ -29,7 +29,7 @@ jobs:
   # STAGE 1: Setup & Validation
   # ===========================================
   setup:
-    name: 🚀 Stage 1: Setup & Validation
+    name: "🚀 Stage 1: Setup & Validation"
     runs-on: ubuntu-latest
     outputs:
       should-deploy-preview: ${{ steps.deployment-check.outputs.should-deploy-preview }}
@@ -109,7 +109,7 @@ jobs:
   # STAGE 2: Code Quality (Parallel Jobs)
   # ===========================================
   lint-and-typecheck:
-    name: 🔍 Lint and Type Check
+    name: "🔍 Lint and Type Check"
     runs-on: ubuntu-latest
     needs: setup
     
@@ -148,7 +148,7 @@ jobs:
           retention-days: 30
 
   security-scan:
-    name: 🔒 Security Scan
+    name: "🔒 Security Scan"
     runs-on: ubuntu-latest
     needs: setup
     
@@ -183,7 +183,7 @@ jobs:
           retention-days: 30
 
   code-quality:
-    name: 📊 Code Quality Checks
+    name: "📊 Code Quality Checks"
     runs-on: ubuntu-latest
     needs: setup
     
@@ -224,7 +224,7 @@ jobs:
           retention-days: 30
 
   performance-check:
-    name: ⚡ Performance Check
+    name: "⚡ Performance Check"
     runs-on: ubuntu-latest
     needs: setup
     
@@ -273,7 +273,7 @@ jobs:
   # STAGE 3: Build & Test
   # ===========================================
   build:
-    name: 🏗️ Stage 3: Build & Test
+    name: "🏗️ Stage 3: Build & Test"
     runs-on: ubuntu-latest
     needs: [setup, lint-and-typecheck, security-scan, code-quality, performance-check]
     
@@ -318,7 +318,7 @@ jobs:
   # STAGE 4: Deployment (Conditional)
   # ===========================================
   deploy-preview:
-    name: 🚀 Deploy Preview
+    name: "🚀 Deploy Preview"
     runs-on: ubuntu-latest
     needs: [setup, build]
     if: needs.setup.outputs.should-deploy-preview == 'true'
@@ -406,7 +406,7 @@ jobs:
             }
 
   deploy-staging:
-    name: 🚀 Deploy Staging
+    name: "🚀 Deploy Staging"
     runs-on: ubuntu-latest
     needs: [setup, build]
     if: needs.setup.outputs.should-deploy-staging == 'true'
@@ -446,7 +446,7 @@ jobs:
           vercel-args: '--prebuilt'
 
   deploy-production:
-    name: 🚀 Deploy Production
+    name: "🚀 Deploy Production"
     runs-on: ubuntu-latest
     needs: [setup, build]
     if: needs.setup.outputs.should-deploy-production == 'true'
@@ -489,7 +489,7 @@ jobs:
   # PIPELINE COMPLETION
   # ===========================================
   pipeline-complete:
-    name: ✅ Pipeline Complete
+    name: "✅ Pipeline Complete"
     runs-on: ubuntu-latest
     needs: [setup, build, deploy-preview, deploy-staging, deploy-production]
     if: always()
