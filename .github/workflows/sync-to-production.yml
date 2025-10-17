@@ -46,8 +46,9 @@ jobs:
           git checkout develop
           git pull origin develop
           
-          # Check if merge would create conflicts
-          if ! git merge --no-commit --no-ff main; then
+          # Check if merge would create conflicts by trying to merge develop into main
+          git checkout main
+          if ! git merge --no-commit --no-ff develop; then
             echo "❌ Merge conflicts detected. Please resolve manually."
             git merge --abort
             exit 1
