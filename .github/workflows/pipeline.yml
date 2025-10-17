@@ -80,20 +80,20 @@ jobs:
             echo "should-sync-to-production=false" >> $GITHUB_OUTPUT
             echo "environment=prod" >> $GITHUB_OUTPUT
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            if [[ "${{ github.event.inputs.sync_to_production }}" == "true" ]]; then
-              echo "should-deploy-dev=false" >> $GITHUB_OUTPUT
-              echo "should-deploy-prod=true" >> $GITHUB_OUTPUT
-              echo "should-sync-to-production=true" >> $GITHUB_OUTPUT
-              echo "environment=prod" >> $GITHUB_OUTPUT
-            elif [[ "${{ github.event.inputs.environment }}" == "dev" ]]; then
+            if [[ "${{ github.event.inputs.environment }}" == "dev" ]]; then
               echo "should-deploy-dev=true" >> $GITHUB_OUTPUT
               echo "should-deploy-prod=false" >> $GITHUB_OUTPUT
               echo "should-sync-to-production=false" >> $GITHUB_OUTPUT
               echo "environment=dev" >> $GITHUB_OUTPUT
             else
+              # prod environment
               echo "should-deploy-dev=false" >> $GITHUB_OUTPUT
               echo "should-deploy-prod=true" >> $GITHUB_OUTPUT
-              echo "should-sync-to-production=false" >> $GITHUB_OUTPUT
+              if [[ "${{ github.event.inputs.sync_to_production }}" == "true" ]]; then
+                echo "should-sync-to-production=true" >> $GITHUB_OUTPUT
+              else
+                echo "should-sync-to-production=false" >> $GITHUB_OUTPUT
+              fi
               echo "environment=prod" >> $GITHUB_OUTPUT
             fi
           else
