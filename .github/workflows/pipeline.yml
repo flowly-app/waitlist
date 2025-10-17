@@ -345,16 +345,20 @@ jobs:
           git config --global user.email "actions@github.com"
 
       - name: Verify develop is ahead of main
+        id: verify-sync
         run: |
           git fetch origin main develop
           DEVELOP_COMMITS=$(git rev-list --count origin/main..origin/develop)
           if [ $DEVELOP_COMMITS -eq 0 ]; then
-            echo "❌ develop is not ahead of main. Nothing to sync."
-            exit 1
+            echo "ℹ️ develop is not ahead of main. Nothing to sync."
+            echo "should-sync=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ develop is $DEVELOP_COMMITS commits ahead of main"
+            echo "should-sync=true" >> $GITHUB_OUTPUT
           fi
-          echo "✅ develop is $DEVELOP_COMMITS commits ahead of main"
 
       - name: Check for merge conflicts
+        if: steps.verify-sync.outputs.should-sync == 'true'
         run: |
           # Update both branches to latest
           git fetch origin main develop
@@ -374,6 +378,7 @@ jobs:
           echo "✅ No merge conflicts detected"
 
       - name: Sync develop to main (Squash)
+        if: steps.verify-sync.outputs.should-sync == 'true'
         run: |
           git checkout main
           git pull origin main
@@ -390,9 +395,16 @@ jobs:
           git push origin main
 
       - name: Sync success notification
+        if: steps.verify-sync.outputs.should-sync == 'true'
         run: |
           echo "✅ Successfully synced develop to main!"
           echo "Production deployment will be triggered automatically."
+
+      - name: No sync needed notification
+        if: steps.verify-sync.outputs.should-sync == 'false'
+        run: |
+          echo "ℹ️ No sync needed - develop is already up to date with main"
+          echo "Production deployment will proceed with current main branch"
 
   # ===========================================
   # STAGE 4: Deployment (Conditional)
