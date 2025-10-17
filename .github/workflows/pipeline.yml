@@ -356,6 +356,8 @@ jobs:
 
       - name: Check for merge conflicts
         run: |
+          # Update both branches to latest
+          git fetch origin main develop
           git checkout main
           git pull origin main
           git checkout develop
