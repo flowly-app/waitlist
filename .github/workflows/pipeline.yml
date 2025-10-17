@@ -547,6 +547,10 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./
           vercel-args: '--prod'
+        env:
+          GITHUB_REF: refs/heads/main
+          GITHUB_HEAD_REF: ''
+          GITHUB_BASE_REF: ''
 
   # ===========================================
   # AUTO-REVERT ON FAILURE
