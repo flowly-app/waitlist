@@ -1,73 +1,86 @@
-# React + TypeScript + Vite
+# Flowly Waitlist
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern waitlist application built with React, TypeScript, and Vite for collecting user interest and managing early access signups.
 
-Currently, two official plugins are available:
+## About
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Flowly Waitlist is a streamlined application designed to capture user interest and manage early access signups. Built with modern web technologies, it provides a fast, responsive interface for users to join the waitlist and for administrators to manage signups.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **Package Manager**: pnpm
+- **Linting**: ESLint with TypeScript support
+- **Styling**: CSS (ready for Tailwind CSS integration)
 
-## Expanding the ESLint configuration
+## Setup / Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd waitlist
+   ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+3. **Start the development server**
+   ```bash
+   pnpm dev
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+4. **Open your browser**
+   Navigate to `http://localhost:5173` to view the application.
+
+## Usage
+
+This application provides a clean interface for users to:
+- Join the waitlist by providing their email
+- View confirmation messages
+- Experience a smooth, responsive design
+
+## Project Structure
+
+```
+src/
+├── App.tsx          # Main application component
+├── main.tsx         # Application entry point
+├── index.css        # Global styles
+└── assets/          # Static assets (images, icons, etc.)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Contributing
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+This project follows a structured git workflow:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. **Always work from feature branches** - Never commit directly to `main` or `develop`
+2. **Create feature branches from `develop`** - Use descriptive names like `feature/add-login`
+3. **Commit frequently** - Use clear, descriptive commit messages
+4. **Use Pull Requests** - All changes must go through PR review
+5. **Keep `develop` stable** - Ready for integration at all times
+
+### Git Workflow
+
+```bash
+# Switch to develop and pull latest changes
+git checkout develop
+git pull origin develop
+
+# Create a new feature branch
+git checkout -b feature/your-feature-name
+
+# Make your changes and commit
+git add .
+git commit -m "feat: add your feature description"
+
+# Push and create PR
+git push origin feature/your-feature-name
+gh pr create --title "Your PR Title" --body "Description of changes"
 ```
+
+## License
+
+This project is proprietary and confidential. All rights reserved.
