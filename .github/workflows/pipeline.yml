@@ -15,11 +15,6 @@ on:
         options:
           - dev
           - prod
-      sync_to_production:
-        description: 'Sync develop to main and deploy to production'
-        required: false
-        default: false
-        type: boolean
 
 env:
   NODE_VERSION: '20'
@@ -74,11 +69,8 @@ jobs:
               # prod environment
               echo "should-deploy-dev=false" >> $GITHUB_OUTPUT
               echo "should-deploy-prod=true" >> $GITHUB_OUTPUT
-              if [[ "${{ github.event.inputs.sync_to_production }}" == "true" ]]; then
-                echo "should-sync-to-production=true" >> $GITHUB_OUTPUT
-              else
-                echo "should-sync-to-production=false" >> $GITHUB_OUTPUT
-              fi
+              # Always sync when deploying to prod (regardless of input)
+              echo "should-sync-to-production=true" >> $GITHUB_OUTPUT
               echo "environment=prod" >> $GITHUB_OUTPUT
             fi
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
