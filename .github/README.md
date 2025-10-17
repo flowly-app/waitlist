@@ -49,6 +49,26 @@ This repository uses GitHub Actions for continuous integration and deployment. T
 - Bundle size analysis
 - Performance warnings
 
+### 🔄 Sync to Production Workflow (`sync-to-production.yml`)
+**Triggers:** Manual dispatch only
+**Purpose:** Automated sync from develop to main with production deployment
+
+**Features:**
+- Manual confirmation required (type "sync" to confirm)
+- Safety checks (develop ahead of main, no conflicts)
+- Squash merge from develop to main
+- Automatic production deployment trigger
+- Auto-revert on deployment failure
+
+### 🔄 Auto Revert Workflow (`auto-revert.yml`)
+**Triggers:** Deploy workflow completion (on failure)
+**Purpose:** Automatic rollback on production deployment failure
+
+**Features:**
+- Monitors deploy workflow status
+- Reverts sync commit if deployment fails
+- Only reverts sync commits (not manual commits)
+
 ## Environment Variables
 
 ### Required Secrets
@@ -79,7 +99,8 @@ GITHUB_TOKEN=your_github_token
 1. **Feature Development**: Create feature branch from `develop`
 2. **Pull Request**: Creates preview deployment
 3. **Merge to Develop**: Triggers staging deployment
-4. **Merge to Main**: Triggers production deployment
+4. **Sync to Production**: Manual trigger syncs develop → main + production deployment
+5. **Auto-revert**: Automatically reverts if production deployment fails
 
 ## Security Features
 
