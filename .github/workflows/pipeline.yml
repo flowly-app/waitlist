@@ -349,12 +349,15 @@ jobs:
         run: |
           git fetch origin main develop
           DEVELOP_COMMITS=$(git rev-list --count origin/main..origin/develop)
+          echo "🔍 Debug: DEVELOP_COMMITS = $DEVELOP_COMMITS"
           if [ $DEVELOP_COMMITS -eq 0 ]; then
             echo "ℹ️ develop is not ahead of main. Nothing to sync."
             echo "should-sync=false" >> $GITHUB_OUTPUT
+            echo "🔍 Debug: should-sync=false"
           else
             echo "✅ develop is $DEVELOP_COMMITS commits ahead of main"
             echo "should-sync=true" >> $GITHUB_OUTPUT
+            echo "🔍 Debug: should-sync=true"
           fi
 
       - name: Check for merge conflicts
@@ -380,11 +383,14 @@ jobs:
       - name: Sync develop to main (Squash)
         if: steps.verify-sync.outputs.should-sync == 'true'
         run: |
+          echo "🔍 Debug: Starting sync process"
           git checkout main
           git pull origin main
           
           # Create squash merge
+          echo "🔍 Debug: About to merge develop into main"
           git merge --squash develop
+          echo "🔍 Debug: Merge completed, creating commit"
           git commit -m "chore: sync develop to main for production deployment
 
           Synced commits from develop:
@@ -392,7 +398,9 @@ jobs:
           
           Triggered by: ${{ github.actor }}"
           
+          echo "🔍 Debug: Commit created, pushing to origin"
           git push origin main
+          echo "🔍 Debug: Push completed successfully"
 
       - name: Sync success notification
         if: steps.verify-sync.outputs.should-sync == 'true'
