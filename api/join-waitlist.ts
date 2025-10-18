@@ -1,11 +1,10 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { LoopsClient } from "loops";
 
 interface JoinWaitlistRequest {
 	email: string;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
 	// Only allow POST requests
 	if (req.method !== "POST") {
 		return res.status(405).json({
