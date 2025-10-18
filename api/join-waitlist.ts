@@ -31,9 +31,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			});
 		}
 
+		// Normalize email: trim whitespace and convert to lowercase
+		// This prevents duplicates like 'John@Email.com' vs 'john@email.com'
+		const email = req.body.email.trim().toLowerCase();
+
 		// Basic email validation
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		const email = req.body.email;
 		if (!emailRegex.test(email)) {
 			return res.status(400).json({
 				success: false,
@@ -55,7 +58,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		// Create contact in Loops
 		await loops.createContact({
-			email: email.trim(),
+			email: email,
 			properties: {
 				source: "waitlist",
 			},
