@@ -2,8 +2,6 @@ import { Sparkles } from "lucide-react";
 import flowHeaderVideo from "./assets/flow-header.mp4";
 import { Footer, Pill } from "./components";
 
-// Force cache invalidation - build fix for CI/CD pipeline
-
 function App() {
 	return (
 		<section className="relative flex flex-col items-center justify-between h-screen p-8 overflow-hidden">

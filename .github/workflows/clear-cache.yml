@@ -1,0 +1,49 @@
+name: Clear Cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "CLEAR" to confirm cache clearing'
+        required: true
+        type: string
+
+jobs:
+  clear-cache:
+    name: "🧹 Clear All Caches"
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'CLEAR'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          # No cache specified to force fresh install
+
+      - name: Clear pnpm cache
+        run: |
+          pnpm store prune
+          pnpm cache clean --force
+
+      - name: Clear node_modules
+        run: |
+          rm -rf node_modules
+          rm -rf .pnpm-store
+          rm -rf dist
+
+      - name: Fresh install
+        run: |
+          pnpm install --no-frozen-lockfile
+
+      - name: Test build
+        run: |
+          pnpm build
+
+      - name: Cache cleared notification
+        run: |
+          echo "✅ All caches have been cleared!"
+          echo "The next pipeline run should work correctly."

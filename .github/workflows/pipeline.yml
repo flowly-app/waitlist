@@ -290,6 +290,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
+      - name: Clear cache before install
+        run: |
+          pnpm store prune || true
+          pnpm cache clean --force || true
+
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
