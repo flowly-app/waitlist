@@ -1,2 +1,2 @@
-export { Pill } from "./pill";
-export { default as Footer } from "./footer";
+export { default as Footer } from "./Footer";
+export { Pill } from "./Pill";
