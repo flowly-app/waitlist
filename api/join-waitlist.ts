@@ -74,10 +74,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		// Handle specific Loops API errors
 		if (error instanceof Error) {
-			if (error.message.includes("already exists")) {
+			// Handle duplicate email (409 Conflict or similar)
+			if (
+				error.message.includes("already exists") ||
+				error.message.includes("duplicate") ||
+				error.message.includes("409") ||
+				error.message.includes("conflict")
+			) {
 				return res.status(200).json({
 					success: true,
 					message: "You're already on our waitlist! We'll keep you updated.",
+				});
+			}
+
+			// Handle validation errors (400 Bad Request)
+			if (error.message.includes("400") || error.message.includes("invalid")) {
+				return res.status(400).json({
+					success: false,
+					message: "Please enter a valid email address.",
 				});
 			}
 		}
