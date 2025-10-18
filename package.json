@@ -5,6 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
+		"dev:api": "vercel dev",
+		"dev:full": "vercel dev",
 		"build": "tsc -b && vite build",
 		"build:staging": "NODE_ENV=production VITE_APP_ENV=staging tsc -b && vite build",
 		"build:production": "NODE_ENV=production VITE_APP_ENV=production tsc -b && vite build",
@@ -35,6 +37,7 @@
 		"@types/react": "^19.1.16",
 		"@types/react-dom": "^19.1.9",
 		"@vitejs/plugin-react": "^5.0.4",
+		"concurrently": "^9.2.1",
 		"eslint": "^9.36.0",
 		"eslint-plugin-react-hooks": "^5.2.0",
 		"eslint-plugin-react-refresh": "^0.4.22",
