@@ -42,9 +42,6 @@ class LoopsWaitlistService implements WaitlistService {
 				properties: {
 					source: "waitlist",
 				},
-				mailingLists: {
-					subscribed: true,
-				},
 			});
 
 			return {
