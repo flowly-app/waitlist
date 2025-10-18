@@ -3,6 +3,7 @@ import { useState } from "react";
 import flowHeaderVideo from "./assets/flow-header.mp4";
 import { Footer, InputField, Pill, TextButton } from "./components";
 import { toast } from "./lib/toast";
+import { loopsService } from "./services/loops";
 
 function App() {
 	const [email, setEmail] = useState("");
@@ -18,14 +19,18 @@ function App() {
 
 		setIsSubmitting(true);
 		try {
-			// TODO: Implement actual API call
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			toast.success("You'll be notified when we're live.");
-			setEmail("");
+			const result = await loopsService.joinWaitlist(email);
+
+			if (result.success) {
+				toast.success(result.message);
+				setEmail("");
+			} else {
+				throw new Error(result.message);
+			}
 		} catch (error) {
-			console.error("Error submitting email:", error);
-			toast.error("Please try again.");
+			const errorMessage =
+				error instanceof Error ? error.message : "Please try again.";
+			toast.error(errorMessage);
 		} finally {
 			setIsSubmitting(false);
 		}

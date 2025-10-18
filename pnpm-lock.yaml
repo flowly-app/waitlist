@@ -72,6 +72,9 @@ importers:
       globals:
         specifier: ^16.4.0
         version: 16.4.0
+      loops:
+        specifier: ^6.0.1
+        version: 6.0.1
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
@@ -1028,6 +1031,10 @@ packages:
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+
+  loops@6.0.1:
+    resolution: {integrity: sha512-ds2CwBA2WuAv50yyHmIpTAzWa4dbVyuSwR9NWtqnlE+78FINILCaxJjDgqNqVYLU1rYioj7mRJNkb6k2/L1EtQ==}
+    engines: {node: '>=18'}
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
@@ -2223,6 +2230,8 @@ snapshots:
       p-locate: 5.0.0
 
   lodash.merge@4.6.2: {}
+
+  loops@6.0.1: {}
 
   lru-cache@5.1.1:
     dependencies:
