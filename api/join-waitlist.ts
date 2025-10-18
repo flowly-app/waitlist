@@ -14,6 +14,58 @@ interface VercelResponse {
 	json: (data: { success: boolean; message: string }) => void;
 }
 
+interface WaitlistService {
+	createContact(email: string): Promise<{ success: boolean; message: string }>;
+}
+
+class LoopsWaitlistService implements WaitlistService {
+	constructor(private loopsClient: LoopsClient) {}
+
+	async createContact(email: string): Promise<{ success: boolean; message: string }> {
+		try {
+			await this.loopsClient.createContact({
+				email,
+				properties: {
+					source: "waitlist",
+				},
+				mailingLists: {
+					subscribed: true,
+				},
+			});
+
+			return {
+				success: true,
+				message: "Welcome to Flowly waitlist! You'll be notified when we're live.",
+			};
+		} catch (error) {
+			console.error("Error creating contact:", error);
+
+			// Handle specific Loops API errors
+			if (error instanceof Error) {
+				// Handle duplicate email (409 Conflict or similar)
+				if (
+					error.message.includes("already exists") ||
+					error.message.includes("duplicate") ||
+					error.message.includes("409") ||
+					error.message.includes("conflict")
+				) {
+					return {
+						success: true,
+						message: "You're already on our waitlist! We'll keep you updated.",
+					};
+				}
+
+				// Handle validation errors (400 Bad Request)
+				if (error.message.includes("400") || error.message.includes("invalid")) {
+					throw new Error("Please enter a valid email address.");
+				}
+			}
+
+			throw new Error("Failed to join waitlist. Please try again.");
+		}
+	}
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	// Only allow POST requests
 	if (req.method !== "POST") {
@@ -54,54 +106,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			});
 		}
 
-		const loops = new LoopsClient(loopsApiKey);
+		// Create service with dependency injection
+		const waitlistService: WaitlistService = new LoopsWaitlistService(
+			new LoopsClient(loopsApiKey)
+		);
 
-		// Create contact in Loops
-		await loops.createContact({
-			email: email,
-			properties: {
-				source: "waitlist",
-			},
-			mailingLists: {
-				subscribed: true,
-			},
-		});
+		// Create contact using service
+		const result = await waitlistService.createContact(email);
 
-		return res.status(200).json({
-			success: true,
-			message:
-				"Welcome to Flowly waitlist! You'll be notified when we're live.",
-		});
+		return res.status(200).json(result);
 	} catch (error) {
 		console.error("Error joining waitlist:", error);
 
-		// Handle specific Loops API errors
-		if (error instanceof Error) {
-			// Handle duplicate email (409 Conflict or similar)
-			if (
-				error.message.includes("already exists") ||
-				error.message.includes("duplicate") ||
-				error.message.includes("409") ||
-				error.message.includes("conflict")
-			) {
-				return res.status(200).json({
-					success: true,
-					message: "You're already on our waitlist! We'll keep you updated.",
-				});
-			}
-
-			// Handle validation errors (400 Bad Request)
-			if (error.message.includes("400") || error.message.includes("invalid")) {
-				return res.status(400).json({
-					success: false,
-					message: "Please enter a valid email address.",
-				});
-			}
+		// Handle validation errors
+		if (error instanceof Error && error.message.includes("valid email")) {
+			return res.status(400).json({
+				success: false,
+				message: error.message,
+			});
 		}
 
+		// Handle other errors
 		return res.status(500).json({
 			success: false,
-			message: "Failed to join waitlist. Please try again.",
+			message: error instanceof Error ? error.message : "Failed to join waitlist. Please try again.",
 		});
 	}
 }
