@@ -17,13 +17,13 @@ export function TextButton({
 	const variantStyles = {
 		primary: "bg-white text-[#111111] hover:bg-white/90 font-medium",
 		secondary:
-			"bg-transparent text-white border border-white/20 hover:bg-white/10 font-medium",
+			"backdrop-blur-[4.5px] bg-[rgba(255,255,255,0.15)] border border-[rgba(255,255,255,0.15)] text-white hover:bg-[rgba(255,255,255,0.2)] font-medium",
 	};
 
 	return (
 		<Button
 			className={cn(
-				"rounded-full transition-all duration-200",
+				"cursor-pointer rounded-full transition-all duration-200",
 				"focus:outline-none focus:ring-2 focus:ring-white/20",
 				"disabled:opacity-50 disabled:cursor-not-allowed",
 				"h-[4.4rem] px-8 text-[1.4rem]",
