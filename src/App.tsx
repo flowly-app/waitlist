@@ -1,5 +1,7 @@
+import { Sparkles } from "lucide-react";
+import Footer from "@/components/Footer";
+import { Pill } from "@/components/Pill";
 import flowHeaderVideo from "./assets/flow-header.mp4";
-import Footer from "./components/footer";
 
 function App() {
 	return (
@@ -15,11 +17,12 @@ function App() {
 			</video>
 
 			<header className="relative flex flex-col items-center justify-center gap-[2.4rem] p-8 flex-1 text-center z-20">
-				<h1 className="text-[6.4rem] font-medium tracking-[-0.192rem] text-white drop-shadow-lg">
+				<Pill title="Launching soon." icon={<Sparkles />} />
+				<h1 className="text-[6.4rem] tracking-[-0.192rem] font-normal text-white drop-shadow-lg">
 					Good things comes <br /> to those{" "}
 					<span className="font-serif">who wait</span>.
 				</h1>
-				<p className="text-[1.8rem] text-white/80 font-light">
+				<p className="text-[1.8rem] text-white/80">
 					Be the first to meet your AI Finance Mentor. <br /> Get early access
 					before launch day.
 				</p>
