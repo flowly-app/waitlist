@@ -45,11 +45,40 @@ function App() {
 				muted
 				loop
 				playsInline
+				controls={false}
+				disablePictureInPicture
+				disableRemotePlayback
 				className="absolute inset-0 w-full h-full object-cover z-0 opacity-50"
+				style={
+					{
+						WebkitMediaControls: "none",
+						WebkitMediaControlsOverlayPlayButton: "none",
+						WebkitMediaControlsStartPlaybackButton: "none",
+					} as React.CSSProperties
+				}
 				aria-label="Background video showing financial concepts"
+				onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
+				onDragStart={(e: React.DragEvent) => e.preventDefault()}
 			>
 				<source src={flowHeaderVideo} type="video/mp4" />
 			</video>
+
+			<div
+				className="absolute inset-0 w-full h-full z-10 pointer-events-auto"
+				onClick={(e: React.MouseEvent) => e.preventDefault()}
+				onDoubleClick={(e: React.MouseEvent) => e.preventDefault()}
+				onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
+				onDragStart={(e: React.DragEvent) => e.preventDefault()}
+				onMouseDown={(e: React.MouseEvent) => e.preventDefault()}
+				onMouseUp={(e: React.MouseEvent) => e.preventDefault()}
+				onTouchStart={(e: React.TouchEvent) => e.preventDefault()}
+				onTouchEnd={(e: React.TouchEvent) => e.preventDefault()}
+				style={{
+					background: "transparent",
+					cursor: "default",
+				}}
+				aria-hidden="true"
+			/>
 
 			<header className="relative flex flex-col items-center justify-center gap-[2.4rem] p-4 sm:p-8 flex-1 text-center z-20">
 				<Pill title="Launching soon." icon={<Sparkles />} />
