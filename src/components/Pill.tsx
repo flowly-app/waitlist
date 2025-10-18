@@ -13,7 +13,7 @@ export function Pill({ title, icon, className }: PillProps) {
 		<Badge
 			variant="outline"
 			className={cn(
-				"rounded-full px-3 py-2 text-[1.4rem] font-light",
+				"rounded-full px-3 py-2 text-[1.2rem] md:text-[1.3rem] lg:text-[1.4rem] font-light",
 				"border-white/15 bg-transparent text-white/80",
 				"gap-1.5",
 				className,

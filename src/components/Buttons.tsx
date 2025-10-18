@@ -25,7 +25,7 @@ export function TextButton({
 				"cursor-pointer rounded-full transition-all duration-200",
 				"focus:outline-none focus:ring-2 focus:ring-white/20",
 				"disabled:opacity-50 disabled:cursor-not-allowed",
-				"h-[4.4rem] px-8 text-[1.4rem]",
+				"h-[4.4rem] w-full sm:w-auto px-8 text-[1.4rem]",
 				variantStyles[variant],
 				className,
 			)}

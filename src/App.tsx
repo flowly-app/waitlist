@@ -39,7 +39,7 @@ function App() {
 	const isEmailValid = email.trim().length > 0 && email.includes("@");
 
 	return (
-		<main className="relative flex flex-col items-center justify-between h-screen p-8 overflow-hidden">
+		<main className="relative flex flex-col items-center justify-between min-h-screen p-4 sm:p-8 overflow-hidden">
 			<video
 				autoPlay
 				muted
@@ -51,19 +51,19 @@ function App() {
 				<source src={flowHeaderVideo} type="video/mp4" />
 			</video>
 
-			<header className="relative flex flex-col items-center justify-center gap-[2.4rem] p-8 flex-1 text-center z-20">
+			<header className="relative flex flex-col items-center justify-center gap-[2.4rem] p-4 sm:p-8 flex-1 text-center z-20">
 				<Pill title="Launching soon." icon={<Sparkles />} />
-				<h1 className="text-[6.4rem] tracking-[-0.192rem] font-normal text-white drop-shadow-lg">
+				<h1 className="text-[4rem] md:text-[5rem] lg:text-[6.4rem] tracking-[-0.192rem] font-normal text-white drop-shadow-lg">
 					Good things comes <br /> to those{" "}
 					<span className="font-serif">who wait</span>.
 				</h1>
-				<p className="text-[1.8rem] text-white/80">
+				<p className="text-[1.4rem] md:text-[1.6rem] lg:text-[1.8rem] text-white/80">
 					Be the first to meet your AI Finance Mentor. <br /> Get early access
 					before launch day.
 				</p>
 				<form
 					onSubmit={handleSubmit}
-					className="flex gap-[1.6rem] items-center mt-[5.8rem]"
+					className="flex flex-col sm:flex-row gap-[1.6rem] items-center mt-[5.8rem] w-full max-w-[60rem] justify-center"
 					aria-label="Join Flowly waitlist"
 				>
 					<InputField
