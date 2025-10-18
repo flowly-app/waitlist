@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
 import flowHeaderVideo from "./assets/flow-header.mp4";
-import { Footer, Pill } from "./components";
+import { Footer, Pill, TextButton } from "./components";
 
 function App() {
 	return (
@@ -25,6 +25,7 @@ function App() {
 					Be the first to meet your AI Finance Mentor. <br /> Get early access
 					before launch day.
 				</p>
+				<TextButton variant="primary" title="Join Waitlist" />
 			</header>
 
 			<div className="relative z-20">
