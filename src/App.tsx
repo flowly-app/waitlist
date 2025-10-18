@@ -3,6 +3,7 @@ import { useState } from "react";
 import flowHeaderVideo from "./assets/flow-header.mp4";
 import { Footer, InputField, Pill, TextButton } from "./components";
 import { toast } from "./lib/toast";
+import { loopsService } from "./services/loops";
 
 function App() {
 	const [email, setEmail] = useState("");
@@ -18,15 +19,7 @@ function App() {
 
 		setIsSubmitting(true);
 		try {
-			const response = await fetch("/api/join-waitlist", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ email }),
-			});
-
-			const result = await response.json();
+			const result = await loopsService.joinWaitlist(email);
 
 			if (result.success) {
 				toast.success(result.message);
