@@ -127,6 +127,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		}
 
 		if (!body || typeof body.email !== "string") {
+			console.log("Validation failed - body:", body);
+			console.log("Body type:", typeof body);
+			console.log("Email type:", typeof body?.email);
 			return res.status(400).json({
 				success: false,
 				code: "validation_error",
