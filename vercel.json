@@ -56,7 +56,13 @@
 			]
 		}
 	],
+	"functions": {
+		"api/join-waitlist.ts": {
+			"maxDuration": 10
+		}
+	},
 	"env": {
-		"NODE_ENV": "production"
+		"NODE_ENV": "production",
+		"LOOPS_API_KEY": "@loops_api_key"
 	}
 }

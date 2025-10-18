@@ -18,14 +18,26 @@ function App() {
 
 		setIsSubmitting(true);
 		try {
-			// TODO: Implement actual API call
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			toast.success("You'll be notified when we're live.");
-			setEmail("");
+			const response = await fetch("/api/join-waitlist", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ email }),
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				toast.success(result.message);
+				setEmail("");
+			} else {
+				throw new Error(result.message);
+			}
 		} catch (error) {
-			console.error("Error submitting email:", error);
-			toast.error("Please try again.");
+			const errorMessage =
+				error instanceof Error ? error.message : "Please try again.";
+			toast.error(errorMessage);
 		} finally {
 			setIsSubmitting(false);
 		}
