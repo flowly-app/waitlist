@@ -11,11 +11,11 @@ interface VercelRequest {
 
 interface VercelResponse {
 	status: (code: number) => VercelResponse;
-	json: (data: { success: boolean; message: string }) => void;
+	json: (data: WaitlistResponse) => void;
 }
 
 // Standardized response codes
-type WaitlistResponseCode = 
+type WaitlistResponseCode =
 	| "ok"
 	| "invalid_email"
 	| "already_subscribed"
@@ -50,7 +50,8 @@ class LoopsWaitlistService implements WaitlistService {
 			return {
 				success: true,
 				code: "ok",
-				message: "Welcome to Flowly waitlist! You'll be notified when we're live.",
+				message:
+					"Welcome to Flowly waitlist! You'll be notified when we're live.",
 			};
 		} catch (error) {
 			console.error("Error creating contact:", error);
@@ -98,6 +99,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== "POST") {
 		return res.status(405).json({
 			success: false,
+			code: "validation_error",
 			message: "Method not allowed",
 		});
 	}
@@ -106,6 +108,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		if (!req.body || typeof req.body.email !== "string") {
 			return res.status(400).json({
 				success: false,
+				code: "validation_error",
 				message: "Email is required",
 			});
 		}
@@ -119,6 +122,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		if (!emailRegex.test(email)) {
 			return res.status(400).json({
 				success: false,
+				code: "invalid_email",
 				message: "Please enter a valid email address",
 			});
 		}
@@ -129,6 +133,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			console.error("LOOPS_API_KEY environment variable is not set");
 			return res.status(500).json({
 				success: false,
+				code: "server_error",
 				message: "Server configuration error",
 			});
 		}
