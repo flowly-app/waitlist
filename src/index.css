@@ -141,11 +141,14 @@ body {
 	--sidebar-ring: oklch(0.556 0 0);
 }
 
+/* stylelint-disable-next-line at-rule-no-unknown */
 @layer base {
 	* {
+		/* stylelint-disable-next-line at-rule-no-unknown */
 		@apply border-border outline-ring/50;
 	}
 	body {
+		/* stylelint-disable-next-line at-rule-no-unknown */
 		@apply bg-background text-foreground;
 	}
 }
