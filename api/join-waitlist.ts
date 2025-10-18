@@ -95,6 +95,11 @@ class LoopsWaitlistService implements WaitlistService {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+	// Debug logging
+	console.log("Request method:", req.method);
+	console.log("Request body type:", typeof req.body);
+	console.log("Request body:", req.body);
+
 	// Only allow POST requests
 	if (req.method !== "POST") {
 		return res.status(405).json({
@@ -105,7 +110,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	}
 
 	try {
-		if (!req.body || typeof req.body.email !== "string") {
+		// Parse JSON body if it's a string
+		let body = req.body;
+		if (typeof body === "string") {
+			try {
+				body = JSON.parse(body);
+				console.log("Parsed body:", body);
+			} catch (parseError) {
+				console.error("JSON parse error:", parseError);
+				return res.status(400).json({
+					success: false,
+					code: "validation_error",
+					message: "Invalid JSON payload",
+				});
+			}
+		}
+
+		if (!body || typeof body.email !== "string") {
 			return res.status(400).json({
 				success: false,
 				code: "validation_error",
@@ -115,7 +136,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		// Normalize email: trim whitespace and convert to lowercase
 		// This prevents duplicates like 'John@Email.com' vs 'john@email.com'
-		const email = req.body.email.trim().toLowerCase();
+		const email = body.email.trim().toLowerCase();
 
 		// Basic email validation
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
