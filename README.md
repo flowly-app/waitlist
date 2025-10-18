@@ -78,6 +78,8 @@ npm run dev
 
 To test the waitlist functionality, use the production deployment as the API routes are serverless functions.
 
+**Production URL:** https://getflowly.io
+
 ## Build
 
 ```bash
