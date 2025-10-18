@@ -1,90 +1,87 @@
 # Flowly Waitlist
 
-A modern waitlist application built with React, TypeScript, and Vite for collecting user interest and managing early access signups.
+AI Finance Mentor waitlist page with glassmorphism design, SEO optimization, and Loops email integration.
 
-## About
+## Environment Variables
 
-Flowly Waitlist is a streamlined application designed to capture user interest and manage early access signups. Built with modern web technologies, it provides a fast, responsive interface for users to join the waitlist and for administrators to manage signups.
-
-## Tech Stack
-
-- **Frontend**: React 18 with TypeScript
-- **Build Tool**: Vite
-- **Package Manager**: pnpm
-- **Linting**: ESLint with TypeScript support
-- **Styling**: CSS (ready for Tailwind CSS integration)
-
-## Quick Deploy
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/flowly-app/waitlist)
-
-## Setup / Installation
-
-1. **Clone the repository**
+### Frontend (.env.local)
+1. Copy `.env.example` to `.env.local`:
    ```bash
-   git clone <repository-url>
-   cd waitlist
+   cp .env.example .env.local
    ```
 
-2. **Install dependencies**
-   ```bash
-   pnpm install
+2. Update the values in `.env.local` as needed:
+   ```env
+   # App Configuration
+   VITE_APP_URL=https://getflowly.io
+   VITE_APP_NAME=Flowly
+   VITE_APP_DESCRIPTION=Meet your AI Finance Mentor...
    ```
 
-3. **Start the development server**
-   ```bash
-   pnpm dev
-   ```
+3. When you get the `flowly.io` domain, simply update `VITE_APP_URL` in `.env.local`
 
-4. **Open your browser**
-   Navigate to `http://localhost:5173` to view the application.
+### Vercel Environment Variables
+Configure these in your Vercel dashboard under Settings > Environment Variables:
 
-## Usage
-
-This application provides a clean interface for users to:
-- Join the waitlist by providing their email
-- View confirmation messages
-- Experience a smooth, responsive design
-
-## Project Structure
-
-```
-src/
-├── App.tsx          # Main application component
-├── main.tsx         # Application entry point
-├── index.css        # Global styles
-└── assets/          # Static assets (images, icons, etc.)
+```env
+LOOPS_API_KEY=your_loops_api_key_here
 ```
 
-## Contributing
+## Loops Integration
 
-This project follows a structured git workflow:
+This waitlist integrates with [Loops](https://loops.so/) for email management through a secure serverless API:
 
-1. **Always work from feature branches** - Never commit directly to `main` or `develop`
-2. **Create feature branches from `develop`** - Use descriptive names like `feature/add-login`
-3. **Commit frequently** - Use clear, descriptive commit messages
-4. **Use Pull Requests** - All changes must go through PR review
-5. **Keep `develop` stable** - Ready for integration at all times
+- **Secure API Key**: Loops API key is stored server-side only
+- **Serverless Function**: `/api/join-waitlist` handles all Loops integration
+- **Automatic Contact Creation**: New emails are automatically added to your Loops contact list
+- **Source Tracking**: All contacts are tagged with `source: "waitlist"`
+- **Error Handling**: Comprehensive error handling with user-friendly messages
 
-### Git Workflow
+### Setting up Loops
+
+1. Create a Loops account at [loops.so](https://loops.so/)
+2. Get your API key from the Loops dashboard
+3. Add the API key to your Vercel environment variables as `LOOPS_API_KEY`
+4. Deploy to Vercel - the integration will automatically handle contact creation
+
+## Features
+
+- ✅ Glassmorphism design system
+- ✅ Form handling with validation
+- ✅ Toast notifications
+- ✅ Loops email integration
+- ✅ SEO optimized (meta tags, structured data, sitemap)
+- ✅ Accessibility compliant
+- ✅ Responsive design
+- ✅ Performance optimized
+
+## SEO Features
+
+- Meta tags (Open Graph, Twitter Cards)
+- JSON-LD structured data
+- Sitemap.xml
+- Robots.txt
+- Canonical URLs
+- Social media optimization
+
+## Development
 
 ```bash
-# Switch to develop and pull latest changes
-git checkout develop
-git pull origin develop
-
-# Create a new feature branch
-git checkout -b feature/your-feature-name
-
-# Make your changes and commit
-git add .
-git commit -m "feat: add your feature description"
-
-# Push and create PR
-git push origin feature/your-feature-name
-gh pr create --title "Your PR Title" --body "Description of changes"
+npm install
+npm run dev
 ```
+*Runs the frontend development server on port 5173*
 
-## License
+**Note:** API routes only work in production deployment. For local testing, use the deployed version.
 
-This project is proprietary and confidential. All rights reserved.
+## Testing
+
+To test the waitlist functionality, use the production deployment as the API routes are serverless functions.
+
+**Production URL:** https://getflowly.io
+
+## Build
+
+```bash
+npm run build
+```
