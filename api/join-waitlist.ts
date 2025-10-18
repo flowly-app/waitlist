@@ -4,7 +4,17 @@ interface JoinWaitlistRequest {
 	email: string;
 }
 
-export default async function handler(req: any, res: any) {
+interface VercelRequest {
+	method?: string;
+	body?: JoinWaitlistRequest;
+}
+
+interface VercelResponse {
+	status: (code: number) => VercelResponse;
+	json: (data: { success: boolean; message: string }) => void;
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
 	// Only allow POST requests
 	if (req.method !== "POST") {
 		return res.status(405).json({
@@ -14,10 +24,7 @@ export default async function handler(req: any, res: any) {
 	}
 
 	try {
-		const { email }: JoinWaitlistRequest = req.body;
-
-		// Validate email
-		if (!email || !email.trim()) {
+		if (!req.body || typeof req.body.email !== "string") {
 			return res.status(400).json({
 				success: false,
 				message: "Email is required",
@@ -26,6 +33,7 @@ export default async function handler(req: any, res: any) {
 
 		// Basic email validation
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		const email = req.body.email;
 		if (!emailRegex.test(email)) {
 			return res.status(400).json({
 				success: false,
