@@ -74,6 +74,10 @@ npm run dev
 
 **Note:** API routes only work in production deployment. For local testing, use the deployed version.
 
+## Testing
+
+To test the waitlist functionality, use the production deployment as the API routes are serverless functions.
+
 ## Build
 
 ```bash
