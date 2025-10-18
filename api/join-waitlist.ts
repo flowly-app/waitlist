@@ -14,14 +14,28 @@ interface VercelResponse {
 	json: (data: { success: boolean; message: string }) => void;
 }
 
+// Standardized response codes
+type WaitlistResponseCode = 
+	| "ok"
+	| "invalid_email"
+	| "already_subscribed"
+	| "server_error"
+	| "validation_error";
+
+interface WaitlistResponse {
+	success: boolean;
+	code: WaitlistResponseCode;
+	message: string;
+}
+
 interface WaitlistService {
-	createContact(email: string): Promise<{ success: boolean; message: string }>;
+	createContact(email: string): Promise<WaitlistResponse>;
 }
 
 class LoopsWaitlistService implements WaitlistService {
 	constructor(private loopsClient: LoopsClient) {}
 
-	async createContact(email: string): Promise<{ success: boolean; message: string }> {
+	async createContact(email: string): Promise<WaitlistResponse> {
 		try {
 			await this.loopsClient.createContact({
 				email,
@@ -35,6 +49,7 @@ class LoopsWaitlistService implements WaitlistService {
 
 			return {
 				success: true,
+				code: "ok",
 				message: "Welcome to Flowly waitlist! You'll be notified when we're live.",
 			};
 		} catch (error) {
@@ -51,17 +66,29 @@ class LoopsWaitlistService implements WaitlistService {
 				) {
 					return {
 						success: true,
+						code: "already_subscribed",
 						message: "You're already on our waitlist! We'll keep you updated.",
 					};
 				}
 
 				// Handle validation errors (400 Bad Request)
-				if (error.message.includes("400") || error.message.includes("invalid")) {
-					throw new Error("Please enter a valid email address.");
+				if (
+					error.message.includes("400") ||
+					error.message.includes("invalid")
+				) {
+					return {
+						success: false,
+						code: "invalid_email",
+						message: "Please enter a valid email address.",
+					};
 				}
 			}
 
-			throw new Error("Failed to join waitlist. Please try again.");
+			return {
+				success: false,
+				code: "server_error",
+				message: "Failed to join waitlist. Please try again.",
+			};
 		}
 	}
 }
@@ -108,28 +135,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 		// Create service with dependency injection
 		const waitlistService: WaitlistService = new LoopsWaitlistService(
-			new LoopsClient(loopsApiKey)
+			new LoopsClient(loopsApiKey),
 		);
 
 		// Create contact using service
 		const result = await waitlistService.createContact(email);
 
-		return res.status(200).json(result);
+		// Map service response codes to HTTP status codes
+		const httpStatus = getHttpStatusFromCode(result.code);
+		return res.status(httpStatus).json(result);
 	} catch (error) {
 		console.error("Error joining waitlist:", error);
 
-		// Handle validation errors
-		if (error instanceof Error && error.message.includes("valid email")) {
-			return res.status(400).json({
-				success: false,
-				message: error.message,
-			});
-		}
-
-		// Handle other errors
+		// Handle unexpected errors
 		return res.status(500).json({
 			success: false,
-			message: error instanceof Error ? error.message : "Failed to join waitlist. Please try again.",
+			code: "server_error",
+			message: "Failed to join waitlist. Please try again.",
 		});
+	}
+}
+
+// Helper function to map response codes to HTTP status codes
+function getHttpStatusFromCode(code: WaitlistResponseCode): number {
+	switch (code) {
+		case "ok":
+		case "already_subscribed":
+			return 200;
+		case "invalid_email":
+		case "validation_error":
+			return 400;
+		case "server_error":
+		default:
+			return 500;
 	}
 }
