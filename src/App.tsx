@@ -2,6 +2,7 @@ import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import flowHeaderVideo from "./assets/flow-header.mp4";
 import { Footer, InputField, Pill, TextButton } from "./components";
+import { toast } from "./lib/toast";
 
 function App() {
 	const [email, setEmail] = useState("");
@@ -18,14 +19,13 @@ function App() {
 		setIsSubmitting(true);
 		try {
 			// TODO: Implement actual API call
-			console.log("Submitting email:", email);
 			// Simulate API call
 			await new Promise((resolve) => setTimeout(resolve, 1000));
-			alert("Thanks for joining our waitlist!");
+			toast.success("You'll be notified when we're live.");
 			setEmail("");
 		} catch (error) {
 			console.error("Error submitting email:", error);
-			alert("Something went wrong. Please try again.");
+			toast.error("Please try again.");
 		} finally {
 			setIsSubmitting(false);
 		}

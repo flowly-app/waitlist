@@ -16,8 +16,7 @@ export function TextButton({
 }: TextButtonProps) {
 	const variantStyles = {
 		primary: "bg-white text-[#111111] hover:bg-white/90 font-medium",
-		secondary:
-			"backdrop-blur-[4.5px] bg-[rgba(255,255,255,0.15)] border border-[rgba(255,255,255,0.15)] text-white hover:bg-[rgba(255,255,255,0.2)] font-medium",
+		secondary: "glassmorphism font-medium",
 	};
 
 	return (
