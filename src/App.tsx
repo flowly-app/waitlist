@@ -34,13 +34,14 @@ function App() {
 	const isEmailValid = email.trim().length > 0 && email.includes("@");
 
 	return (
-		<section className="relative flex flex-col items-center justify-between h-screen p-8 overflow-hidden">
+		<main className="relative flex flex-col items-center justify-between h-screen p-8 overflow-hidden">
 			<video
 				autoPlay
 				muted
 				loop
 				playsInline
 				className="absolute inset-0 w-full h-full object-cover z-0 opacity-50"
+				aria-label="Background video showing financial concepts"
 			>
 				<source src={flowHeaderVideo} type="video/mp4" />
 			</video>
@@ -58,6 +59,7 @@ function App() {
 				<form
 					onSubmit={handleSubmit}
 					className="flex gap-[1.6rem] items-center mt-[5.8rem]"
+					aria-label="Join Flowly waitlist"
 				>
 					<InputField
 						type="email"
@@ -66,19 +68,21 @@ function App() {
 						onChange={handleEmailChange}
 						disabled={isSubmitting}
 						required
+						aria-label="Email address for waitlist"
 					/>
 					<TextButton
 						title={"Join Waitlist"}
 						disabled={!isEmailValid || isSubmitting}
 						type="submit"
+						aria-label="Submit email to join waitlist"
 					/>
 				</form>
 			</header>
 
-			<div className="relative z-20">
+			<footer className="relative z-20">
 				<Footer />
-			</div>
-		</section>
+			</footer>
+		</main>
 	);
 }
 
