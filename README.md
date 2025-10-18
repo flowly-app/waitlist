@@ -66,25 +66,13 @@ This waitlist integrates with [Loops](https://loops.so/) for email management th
 
 ## Development
 
-### Frontend Only (Vite)
 ```bash
 npm install
 npm run dev
 ```
-*Note: API routes won't work with this method*
+*Runs the frontend development server on port 5173*
 
-### Full Development (Frontend + API)
-```bash
-npm install
-npm run dev:full
-```
-*This runs both Vite (frontend) and Vercel dev (API) concurrently*
-
-### API Only (Vercel)
-```bash
-npm run dev:api
-```
-*Runs only the API server on port 3000*
+**Note:** API routes only work in production deployment. For local testing, use the deployed version.
 
 ## Build
 
