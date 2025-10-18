@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
-import Footer from "@/components/footer";
-import { Pill } from "@/components/pill";
+import Footer from "./components/footer";
+import { Pill } from "./components/pill";
 import flowHeaderVideo from "./assets/flow-header.mp4";
 
 function App() {
