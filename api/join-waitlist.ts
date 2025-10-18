@@ -1,4 +1,4 @@
-import { LoopsClient } from "loops";
+import { APIError, LoopsClient } from "loops";
 
 interface JoinWaitlistRequest {
 	email: string;
@@ -53,7 +53,37 @@ class LoopsWaitlistService implements WaitlistService {
 		} catch (error) {
 			console.error("Error creating contact:", error);
 
-			// Handle specific Loops API errors
+			// Handle specific Loops API errors using APIError
+			if (error instanceof APIError) {
+				console.log("API Error:", error.json);
+				console.log("Status Code:", error.statusCode);
+
+				// Handle duplicate email (409 Conflict)
+				if (
+					error.statusCode === 409 ||
+					(error.json &&
+						"message" in error.json &&
+						typeof error.json.message === "string" &&
+						error.json.message.includes("already exists"))
+				) {
+					return {
+						success: true,
+						code: "already_subscribed",
+						message: "You're already on our waitlist! We'll keep you updated.",
+					};
+				}
+
+				// Handle validation errors (400 Bad Request)
+				if (error.statusCode === 400) {
+					return {
+						success: false,
+						code: "invalid_email",
+						message: "Please enter a valid email address.",
+					};
+				}
+			}
+
+			// Handle other errors (fallback)
 			if (error instanceof Error) {
 				// Handle duplicate email (409 Conflict or similar)
 				if (
