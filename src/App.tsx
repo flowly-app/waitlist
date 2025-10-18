@@ -39,43 +39,18 @@ function App() {
 	const isEmailValid = email.trim().length > 0 && email.includes("@");
 
 	return (
-<<<<<<< HEAD
-		<section className="relative flex flex-col items-center justify-between h-screen p-8 overflow-hidden">
-=======
 		<main className="relative flex flex-col items-center justify-between min-h-screen p-4 sm:p-8 overflow-hidden">
->>>>>>> develop
 			<video
 				autoPlay
 				muted
 				loop
 				playsInline
 				className="absolute inset-0 w-full h-full object-cover z-0 opacity-50"
-<<<<<<< HEAD
-=======
 				aria-label="Background video showing financial concepts"
->>>>>>> develop
 			>
 				<source src={flowHeaderVideo} type="video/mp4" />
 			</video>
 
-<<<<<<< HEAD
-			<header className="relative flex flex-col items-center justify-center gap-[2.4rem] p-8 flex-1 text-center z-20">
-				<Pill title="Launching soon." icon={<Sparkles />} />
-				<h1 className="text-[6.4rem] tracking-[-0.192rem] font-normal text-white drop-shadow-lg">
-					Good things comes <br /> to those{" "}
-					<span className="font-serif">who wait</span>.
-				</h1>
-				<p className="text-[1.8rem] text-white/80">
-					Be the first to meet your AI Finance Mentor. <br /> Get early access
-					before launch day.
-				</p>
-			</header>
-
-			<div className="relative z-20">
-				<Footer />
-			</div>
-		</section>
-=======
 			<header className="relative flex flex-col items-center justify-center gap-[2.4rem] p-4 sm:p-8 flex-1 text-center z-20">
 				<Pill title="Launching soon." icon={<Sparkles />} />
 				<h1 className="text-[4rem] md:text-[5rem] lg:text-[6.4rem] tracking-[-0.192rem] font-normal text-white drop-shadow-lg">
@@ -113,7 +88,6 @@ function App() {
 				<Footer />
 			</footer>
 		</main>
->>>>>>> develop
 	);
 }
 
