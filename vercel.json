@@ -55,7 +55,6 @@
 		}
 	},
 	"env": {
-		"NODE_ENV": "production",
-		"LOOPS_API_KEY": "@loops_api_key"
+		"NODE_ENV": "production"
 	}
 }
