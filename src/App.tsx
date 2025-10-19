@@ -82,7 +82,7 @@ function App() {
 
 			<header className="relative flex flex-col items-center justify-center gap-[2.4rem] p-4 sm:p-8 flex-1 text-center z-20">
 				<Pill title="Launching soon." icon={<Sparkles />} />
-				<h1 className="text-[4rem] md:text-[5rem] lg:text-[6.4rem] tracking-[-0.192rem] font-normal text-white drop-shadow-lg">
+				<h1 className="text-[3rem] md:text-[5rem] lg:text-[6.4rem] tracking-[-0.192rem] font-normal text-white drop-shadow-lg">
 					The AI finance mentor that <br /> makes your money{" "}
 					<span className="font-serif">flow</span>.
 				</h1>
