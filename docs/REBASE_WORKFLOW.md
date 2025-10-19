@@ -57,16 +57,12 @@ git commit -m "fix: resolve login validation issue"
 
 ### 5. **Rebase via GitHub**
 
-#### Opção A: Comando /rebase
-- Comentar `/rebase` na PR
-- O workflow será executado automaticamente
-
-#### Opção B: GitHub Actions UI
-- Ir em **Actions** → **Auto Rebase PR**
+#### Opção A: GitHub Actions UI
+- Ir em **Actions** → **Pipeline**
 - Clicar em **Run workflow**
-- Inserir número da PR
+- Selecionar branch e inserir número da PR no campo `pr_number`
 
-#### Opção C: Script Local
+#### Opção B: Script Local
 ```bash
 # Trigger rebase para PR específica
 ./scripts/git-workflow.sh trigger-rebase 123
@@ -74,20 +70,17 @@ git commit -m "fix: resolve login validation issue"
 
 ## 🔧 Workflows Implementados
 
-### 1. **enforce-rebase.yml**
+### 1. **pipeline.yml - Rebase Check Job**
 - **Trigger**: PR opened/synchronized/reopened
 - **Função**: Verifica se PR precisa de rebase
 - **Ação**: Bloqueia merge se PR não estiver rebaseada
+- **Integração**: Parte da pipeline principal
 
-### 2. **auto-rebase.yml**
-- **Trigger**: Manual (workflow_dispatch)
+### 2. **pipeline.yml - Auto Rebase Job**
+- **Trigger**: Manual (workflow_dispatch com pr_number)
 - **Função**: Executa rebase automático
 - **Ação**: Rebaseia PR e força push
-
-### 3. **rebase-button.yml**
-- **Trigger**: Comentário `/rebase` na PR
-- **Função**: Trigger automático do rebase
-- **Ação**: Chama auto-rebase.yml
+- **Integração**: Parte da pipeline principal
 
 ## 📊 Status Checks
 
