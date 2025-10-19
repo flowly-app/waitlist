@@ -5,6 +5,8 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
       environment:
@@ -194,8 +196,8 @@ jobs:
             }
             
             commentBody += `### 🚀 Quick Rebase Options\n\n`;
-            commentBody += `**Option 1: Use the Rebase Button**\n`;
-            commentBody += `Click the "🔄 Rebase" button below to automatically rebase this PR.\n\n`;
+            commentBody += `**Option 1: Use the /rebase command**\n`;
+            commentBody += `Comment \`/rebase\` in this PR to automatically rebase it.\n\n`;
             commentBody += `**Option 2: Manual Rebase**\n`;
             commentBody += `\`\`\`bash\n`;
             commentBody += `# 1. Switch to your feature branch\n`;
@@ -208,7 +210,7 @@ jobs:
             commentBody += `git push origin ${{ github.head_ref }} --force-with-lease\n`;
             commentBody += `\`\`\`\n\n`;
             commentBody += `**Option 3: Use our helper script**\n`;
-            commentBody += `\`\`\bash\n`;
+            commentBody += `\`\`\`bash\n`;
             commentBody += `./scripts/git-workflow.sh rebase\n`;
             commentBody += `\`\`\`\n\n`;
             commentBody += `---\n`;
@@ -415,6 +417,53 @@ jobs:
             echo "⚠️ Warning: Found $LARGE_CSS CSS files larger than 100KB"
             find dist -name "*.css" -size +100k -exec ls -lh {} \;
           fi
+
+  # ===========================================
+  # REBASE VIA COMMENT
+  # ===========================================
+  rebase-via-comment:
+    name: "🔄 Rebase via Comment"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/rebase')
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    
+    steps:
+      - name: Get PR number
+        id: pr-number
+        run: |
+          echo "pr-number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.createComment({
+              issue_number: ${{ steps.pr-number.outputs.pr-number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🔄 **Rebase initiated!**\n\nI\'m rebasing this PR onto develop. This may take a few moments...'
+            });
+
+      - name: Trigger rebase workflow
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Trigger the auto-rebase workflow
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'pipeline.yml',
+              ref: 'develop',
+              inputs: {
+                pr_number: '${{ steps.pr-number.outputs.pr-number }}',
+                force_rebase: 'true'
+              }
+            });
 
   # ===========================================
   # AUTO REBASE (Manual Trigger)
