@@ -83,12 +83,12 @@ function App() {
 			<header className="relative flex flex-col items-center justify-center gap-[2.4rem] p-4 sm:p-8 flex-1 text-center z-20">
 				<Pill title="Launching soon." icon={<Sparkles />} />
 				<h1 className="text-[4rem] md:text-[5rem] lg:text-[6.4rem] tracking-[-0.192rem] font-normal text-white drop-shadow-lg">
-					Good things comes <br /> to those{" "}
-					<span className="font-serif">who wait</span>.
+					The AI finance mentor that <br /> makes your money{" "}
+					<span className="font-serif">flow</span>.
 				</h1>
 				<p className="text-[1.4rem] md:text-[1.6rem] lg:text-[1.8rem] text-white/80">
-					Be the first to meet your AI Finance Mentor. <br /> Get early access
-					before launch day.
+					Get early access to Flowly — your personal guide to understanding,{" "}
+					<br /> planning and growing your money, effortlessly.
 				</p>
 				<form
 					onSubmit={handleSubmit}
