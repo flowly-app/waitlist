@@ -1,0 +1,45 @@
+name: Rebase Button
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  handle-rebase-request:
+    runs-on: ubuntu-latest
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/rebase')
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    
+    steps:
+      - name: Get PR number
+        id: pr-number
+        run: |
+          echo "pr-number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+
+      - name: Trigger rebase workflow
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Trigger the auto-rebase workflow
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'auto-rebase.yml',
+              ref: 'develop',
+              inputs: {
+                pr_number: '${{ steps.pr-number.outputs.pr-number }}',
+                force_rebase: 'true'
+              }
+            });
+            
+            // Comment on the PR
+            await github.rest.issues.createComment({
+              issue_number: ${{ steps.pr-number.outputs.pr-number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🔄 **Rebase initiated!**\n\nI\'m rebasing this PR onto develop. This may take a few moments...'
+            });
