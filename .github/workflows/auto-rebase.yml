@@ -1,0 +1,129 @@
+name: Auto Rebase PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to rebase'
+        required: true
+        type: string
+      force_rebase:
+        description: 'Force rebase even if up to date'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  auto-rebase:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      statuses: write
+    
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Get PR information
+        id: pr-info
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: ${{ github.event.inputs.pr_number }}
+            });
+            
+            return {
+              head_ref: pr.head.ref,
+              head_sha: pr.head.sha,
+              base_ref: pr.base.ref,
+              title: pr.title,
+              number: pr.number
+            };
+
+      - name: Checkout PR branch
+        run: |
+          git fetch origin ${{ steps.pr-info.outputs.head_ref }}
+          git checkout ${{ steps.pr-info.outputs.head_ref }}
+
+      - name: Check if rebase is needed
+        id: check-rebase
+        run: |
+          git fetch origin develop
+          
+          BEHIND_COUNT=$(git rev-list --count origin/develop..HEAD)
+          AHEAD_COUNT=$(git rev-list --count HEAD..origin/develop)
+          
+          echo "behind-count=$BEHIND_COUNT" >> $GITHUB_OUTPUT
+          echo "ahead-count=$AHEAD_COUNT" >> $GITHUB_OUTPUT
+          
+          if [ $BEHIND_COUNT -gt 0 ] || [ "${{ github.event.inputs.force_rebase }}" == "true" ]; then
+            echo "needs-rebase=true" >> $GITHUB_OUTPUT
+            echo "🔄 PR needs rebase (behind: $BEHIND_COUNT, force: ${{ github.event.inputs.force_rebase }})"
+          else
+            echo "needs-rebase=false" >> $GITHUB_OUTPUT
+            echo "✅ PR is up to date with develop"
+          fi
+
+      - name: Perform rebase
+        if: steps.check-rebase.outputs.needs-rebase == 'true'
+        run: |
+          echo "🔄 Starting rebase process..."
+          
+          # Rebase onto develop
+          if git rebase origin/develop; then
+            echo "✅ Rebase completed successfully"
+            
+            # Force push with lease
+            git push origin ${{ steps.pr-info.outputs.head_ref }} --force-with-lease
+            echo "✅ Force pushed rebased branch"
+          else
+            echo "❌ Rebase failed due to conflicts"
+            echo "Please resolve conflicts manually and try again"
+            exit 1
+          fi
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const needsRebase = '${{ steps.check-rebase.outputs.needs-rebase }}' === 'true';
+            const behindCount = '${{ steps.check-rebase.outputs.behind-count }}';
+            
+            let commentBody;
+            
+            if (needsRebase) {
+              commentBody = `## ✅ Rebase Completed Successfully!\n\n`;
+              commentBody += `🔄 **This PR has been automatically rebased onto develop**\n\n`;
+              commentBody += `- **Commits behind:** ${behindCount}\n`;
+              commentBody += `- **Status:** Ready for merge 🚀\n\n`;
+              commentBody += `The PR is now up to date with the latest develop branch.`;
+            } else {
+              commentBody = `## ℹ️ No Rebase Needed\n\n`;
+              commentBody += `This PR is already up to date with develop. No rebase was performed.`;
+            }
+            
+            await github.rest.issues.createComment({
+              issue_number: ${{ github.event.inputs.pr_number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
+
+      - name: Trigger status check
+        run: |
+          # This will trigger the enforce-rebase workflow to re-check
+          echo "🔄 Triggering status check update..."

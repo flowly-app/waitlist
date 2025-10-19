@@ -1,0 +1,171 @@
+name: Enforce Rebase Before Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+    branches: [develop]
+
+jobs:
+  check-rebase-status:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      statuses: write
+    
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Check if PR needs rebase
+        id: check-rebase
+        run: |
+          git fetch origin develop
+          
+          # Check if PR is behind develop
+          BEHIND_COUNT=$(git rev-list --count origin/develop..HEAD)
+          AHEAD_COUNT=$(git rev-list --count HEAD..origin/develop)
+          
+          echo "behind-count=$BEHIND_COUNT" >> $GITHUB_OUTPUT
+          echo "ahead-count=$AHEAD_COUNT" >> $GITHUB_OUTPUT
+          
+          if [ $BEHIND_COUNT -gt 0 ]; then
+            echo "needs-rebase=true" >> $GITHUB_OUTPUT
+            echo "❌ PR is $BEHIND_COUNT commits behind develop"
+          else
+            echo "needs-rebase=false" >> $GITHUB_OUTPUT
+            echo "✅ PR is up to date with develop"
+          fi
+
+      - name: Check for merge commits
+        id: check-merge-commits
+        run: |
+          # Check if there are merge commits in the PR
+          MERGE_COMMITS=$(git log --merges origin/develop..HEAD | wc -l)
+          echo "merge-commits=$MERGE_COMMITS" >> $GITHUB_OUTPUT
+          
+          if [ $MERGE_COMMITS -gt 0 ]; then
+            echo "has-merge-commits=true" >> $GITHUB_OUTPUT
+            echo "❌ PR contains $MERGE_COMMITS merge commits"
+          else
+            echo "has-merge-commits=false" >> $GITHUB_OUTPUT
+            echo "✅ PR has no merge commits"
+          fi
+
+      - name: Set status check
+        if: steps.check-rebase.outputs.needs-rebase == 'true' || steps.check-merge-commits.outputs.has-merge-commits == 'true'
+        run: |
+          # This will fail the status check, preventing merge
+          echo "❌ PR must be rebased before merging"
+          exit 1
+
+      - name: Add rebase button to PR
+        if: steps.check-rebase.outputs.needs-rebase == 'true' || steps.check-merge-commits.outputs.has-merge-commits == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const needsRebase = '${{ steps.check-rebase.outputs.needs-rebase }}' === 'true';
+            const hasMergeCommits = '${{ steps.check-merge-commits.outputs.has-merge-commits }}' === 'true';
+            
+            let commentBody = '## 🔄 Rebase Required\n\n';
+            
+            if (needsRebase) {
+              commentBody += '❌ **This PR is behind develop and needs to be rebased.**\n\n';
+            }
+            
+            if (hasMergeCommits) {
+              commentBody += '❌ **This PR contains merge commits and needs to be rebased.**\n\n';
+            }
+            
+            commentBody += `### 🚀 Quick Rebase Options\n\n`;
+            commentBody += `**Option 1: Use the Rebase Button**\n`;
+            commentBody += `Click the "🔄 Rebase" button below to automatically rebase this PR.\n\n`;
+            commentBody += `**Option 2: Manual Rebase**\n`;
+            commentBody += `\`\`\`bash\n`;
+            commentBody += `# 1. Switch to your feature branch\n`;
+            commentBody += `git checkout ${{ github.head_ref }}\n\n`;
+            commentBody += `# 2. Fetch latest changes\n`;
+            commentBody += `git fetch origin develop\n\n`;
+            commentBody += `# 3. Rebase onto develop\n`;
+            commentBody += `git rebase origin/develop\n\n`;
+            commentBody += `# 4. Force push (if needed)\n`;
+            commentBody += `git push origin ${{ github.head_ref }} --force-with-lease\n`;
+            commentBody += `\`\`\`\n\n`;
+            commentBody += `**Option 3: Use our helper script**\n`;
+            commentBody += `\`\`\bash\n`;
+            commentBody += `./scripts/git-workflow.sh rebase\n`;
+            commentBody += `\`\`\`\n\n`;
+            commentBody += `---\n`;
+            commentBody += `*This check will pass once the PR is properly rebased.*`;
+            
+            // Check if rebase comment already exists
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const rebaseComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('🔄 Rebase Required')
+            );
+            
+            if (rebaseComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: rebaseComment.id,
+                body: commentBody
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentBody
+              });
+            }
+
+      - name: Success comment
+        if: steps.check-rebase.outputs.needs-rebase == 'false' && steps.check-merge-commits.outputs.has-merge-commits == 'false'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const commentBody = '## ✅ Rebase Check Passed\n\nThis PR is properly rebased and ready for merge! 🚀';
+            
+            // Remove any existing rebase required comments
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const rebaseComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('🔄 Rebase Required')
+            );
+            
+            if (rebaseComment) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: rebaseComment.id
+              });
+            }
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
