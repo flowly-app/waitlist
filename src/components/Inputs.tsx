@@ -16,7 +16,7 @@ export function InputField({
 			placeholder={placeholder}
 			className={cn(
 				"glassmorphism rounded-full",
-				"h-[4.4rem] w-full sm:max-w-[28rem] px-8 !text-[1.4rem]",
+				"h-[4.4rem] w-full sm:max-w-[28rem] px-8",
 				"placeholder:text-white/60",
 				className,
 			)}
