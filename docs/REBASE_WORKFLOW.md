@@ -1,15 +1,14 @@
 # 🔄 Rebase Workflow - Flowly Waitlist
 
-Este documento explica como usar o sistema de rebase automático implementado para manter um histórico Git limpo e linear.
+Este documento explica como usar o sistema de rebase nativo do GitHub para manter um histórico Git limpo e linear.
 
 ## 📋 Visão Geral
 
-O sistema implementado garante que todas as PRs sejam rebaseadas antes do merge, mantendo um histórico linear e limpo. Isso é feito através de:
+O sistema utiliza as funcionalidades nativas do GitHub para garantir que todas as PRs sejam rebaseadas antes do merge, mantendo um histórico linear e limpo. Isso é feito através de:
 
-1. **Status Checks Automáticos** - Verifica se PR precisa de rebase
-2. **Botão de Rebase** - Interface fácil para rebase automático
-3. **Comando /rebase** - Comando via comentário na PR
-4. **Script Helper** - Ferramentas locais para rebase
+1. **Branch Protection Rules** - Configuração para forçar "Rebase and merge"
+2. **GitHub Native Rebase** - Opção "Rebase and merge" nas PRs
+3. **Script Helper** - Ferramentas locais para desenvolvimento
 
 ## 🚀 Como Usar
 
@@ -35,60 +34,49 @@ git add .
 git commit -m "fix: resolve login validation issue"
 ```
 
-### 3. **Rebase Antes de Finalizar**
-
-```bash
-# Rebase automático
-./scripts/git-workflow.sh rebase
-
-# Ou rebase interativo para limpar commits
-./scripts/git-workflow.sh rebase-interactive
-
-# Ou squash todos os commits em um
-./scripts/git-workflow.sh squash
-```
-
-### 4. **Finalizar Feature**
+### 3. **Finalizar Feature**
 
 ```bash
 # Finalizar e criar PR
 ./scripts/git-workflow.sh finish
 ```
 
-### 5. **Rebase via GitHub**
+### 4. **Rebase via GitHub (Nativo)**
 
-#### Opção A: GitHub Actions UI
-- Ir em **Actions** → **Pipeline**
-- Clicar em **Run workflow**
-- Selecionar branch e inserir número da PR no campo `pr_number`
+#### Opção A: Rebase and Merge (Recomendado)
+1. **Ir na PR** no GitHub
+2. **Clicar no botão "Merge pull request"**
+3. **Selecionar "Rebase and merge"** no dropdown
+4. **Confirmar o merge**
 
-#### Opção B: Script Local
-```bash
-# Trigger rebase para PR específica
-./scripts/git-workflow.sh trigger-rebase 123
-```
+#### Opção B: Squash and Merge
+1. **Ir na PR** no GitHub
+2. **Clicar no botão "Merge pull request"**
+3. **Selecionar "Squash and merge"** no dropdown
+4. **Confirmar o merge**
 
-## 🔧 Workflows Implementados
+## 🔧 Configuração do Repositório
 
-### 1. **pipeline.yml - Rebase Check Job**
-- **Trigger**: PR opened/synchronized/reopened
-- **Função**: Verifica se PR precisa de rebase
-- **Ação**: Bloqueia merge se PR não estiver rebaseada
-- **Integração**: Parte da pipeline principal
+Para funcionar corretamente, configure as **Branch Protection Rules**:
 
-### 2. **pipeline.yml - Auto Rebase Job**
-- **Trigger**: Manual (workflow_dispatch com pr_number)
-- **Função**: Executa rebase automático
-- **Ação**: Rebaseia PR e força push
-- **Integração**: Parte da pipeline principal
+### **Settings** → **Branches** → **Add rule** para `develop`:
+
+1. **✅ Require a pull request before merging**
+2. **✅ Require branches to be up to date before merging**
+3. **✅ Restrict pushes that create files larger than 100MB**
+
+### **Merge Options** (Opcional):
+- **✅ Allow rebase merging** (recomendado)
+- **✅ Allow squash merging** (opcional)
+- **❌ Allow merge commits** (desabilitado para histórico linear)
 
 ## 📊 Status Checks
 
-O sistema adiciona status checks que:
-
-- ✅ **Passam** quando PR está rebaseada e atualizada
-- ❌ **Falham** quando PR precisa de rebase
-- 🔄 **Mostram botão** para rebase automático
+O sistema nativo do GitHub:
+- ✅ **Verifica conflitos** automaticamente
+- ✅ **Mostra "No conflicts with base branch"** quando OK
+- ✅ **Permite merge** apenas quando sem conflitos
+- ✅ **Mantém histórico linear** com "Rebase and merge"
 
 ## 🛠️ Comandos Disponíveis
 
@@ -98,54 +86,42 @@ O sistema adiciona status checks que:
 ./scripts/git-workflow.sh finish           # Finalizar feature
 ./scripts/git-workflow.sh sync             # Sincronizar com develop
 
-# Comandos de rebase
-./scripts/git-workflow.sh rebase           # Rebase automático
-./scripts/git-workflow.sh rebase-interactive # Rebase interativo
-./scripts/git-workflow.sh squash           # Squash commits
-
 # Comandos de gerenciamento
-./scripts/git-workflow.sh trigger-rebase <pr#> # Trigger rebase via GitHub
 ./scripts/git-workflow.sh cleanup          # Limpar branches merged
 ./scripts/git-workflow.sh status           # Status atual
 ./scripts/git-workflow.sh help             # Ajuda
 ```
 
-## 🔒 Configuração do Repositório
-
-Para funcionar corretamente, configure:
-
-1. **Branch Protection Rules** para `develop`:
-   - ✅ Require a pull request before merging
-   - ✅ Require status checks to pass before merging
-   - ✅ Require branches to be up to date before merging
-   - ✅ Require linear history
-
-2. **Merge Options**:
-   - ✅ Allow rebase merging
-   - ❌ Allow merge commits (desabilitado)
-
 ## 🎯 Benefícios
 
 1. **📈 Histórico Linear**: Commits organizados em linha reta
 2. **🧹 Commits Limpos**: Sem merge commits desnecessários
-3. **🔄 Atualização Automática**: PRs sempre atualizadas
-4. **📊 Feedback Visual**: Status checks claros
+3. **🔄 Simplicidade**: Usa funcionalidades nativas do GitHub
+4. **📊 Feedback Visual**: Interface clara e intuitiva
 5. **🚀 Deploy Seguro**: Histórico previsível
-6. **🤖 Automação**: Menos trabalho manual
+6. **🤖 Zero Configuração**: Funciona out-of-the-box
 
 ## 🚨 Resolução de Conflitos
 
-Se o rebase falhar por conflitos:
+Se houver conflitos durante o rebase:
 
+### **Via GitHub:**
+1. **GitHub detecta conflitos** automaticamente
+2. **Mostra "This branch has conflicts"**
+3. **Clique em "Resolve conflicts"**
+4. **Edite os arquivos** com conflitos
+5. **Marque como resolvido** e confirme
+
+### **Via Local:**
 ```bash
 # Resolver conflitos manualmente
-git status
-# Editar arquivos com conflitos
+git checkout feature/branch-name
+git fetch origin develop
+git rebase origin/develop
+# Resolver conflitos nos arquivos
 git add .
 git rebase --continue
-
-# Ou abortar rebase
-git rebase --abort
+git push origin feature/branch-name --force-with-lease
 ```
 
 ## 📝 Exemplos de Uso
@@ -161,36 +137,35 @@ git commit -m "feat: add user profile form"
 git add .
 git commit -m "fix: validate email format"
 
-# 3. Rebase antes de finalizar
-./scripts/git-workflow.sh rebase
-
-# 4. Finalizar
+# 3. Finalizar
 ./scripts/git-workflow.sh finish
 
-# 5. Criar PR
+# 4. Criar PR
 gh pr create --title "Add user profile" --body "Implements user profile functionality"
+
+# 5. Fazer merge via GitHub
+# - Ir na PR
+# - Clicar "Merge pull request"
+# - Selecionar "Rebase and merge"
+# - Confirmar
 ```
 
-### Rebase via GitHub
+### Limpeza de Branches
 ```bash
-# Após criar PR, comentar:
-/rebase
-
-# Ou usar script local
-./scripts/git-workflow.sh trigger-rebase 456
+# Limpar branches merged
+./scripts/git-workflow.sh cleanup
 ```
 
 ## 🔍 Troubleshooting
 
 ### PR não consegue fazer merge
-- Verificar se status checks estão passando
-- Executar rebase via `/rebase` ou script
-- Verificar se não há merge commits
+- Verificar se há conflitos com develop
+- Resolver conflitos via GitHub ou localmente
+- Verificar se branch está atualizada
 
-### Rebase falha
-- Resolver conflitos manualmente
-- Usar `git rebase --continue` após resolver
-- Ou `git rebase --abort` para cancelar
+### Conflitos durante rebase
+- Usar "Resolve conflicts" no GitHub
+- Ou resolver localmente e fazer push
 
 ### Script não funciona
 - Verificar se está na feature branch
@@ -199,6 +174,18 @@ gh pr create --title "Add user profile" --body "Implements user profile function
 
 ## 📚 Recursos Adicionais
 
+- [GitHub Rebase and Merge Documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#rebase-and-merge-your-pull-request-commits)
+- [GitHub Branch Protection Rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches)
 - [Git Rebase Documentation](https://git-scm.com/docs/git-rebase)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [GitHub CLI Documentation](https://cli.github.com/)
+
+## 🎉 Resumo
+
+Este sistema simplificado utiliza as funcionalidades nativas do GitHub para manter um histórico Git limpo e linear. É mais simples, confiável e não requer configuração complexa de workflows.
+
+**Principais vantagens:**
+- ✅ **Zero configuração** de workflows complexos
+- ✅ **Interface nativa** do GitHub
+- ✅ **Histórico linear** automático
+- ✅ **Resolução de conflitos** integrada
+- ✅ **Fácil de usar** para toda a equipe
