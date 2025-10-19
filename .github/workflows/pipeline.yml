@@ -102,6 +102,7 @@ jobs:
           echo "  Prod Environment: ${{ steps.deployment-check.outputs.should-deploy-prod }}"
           echo "  Sync to Production: ${{ steps.deployment-check.outputs.should-sync-to-production }}"
           echo "  Environment: ${{ steps.deployment-check.outputs.environment }}"
+          echo "  Rebase: Using GitHub native 'Rebase and merge'"
 
   # ===========================================
   # STAGE 2: Code Quality (Parallel Jobs)
