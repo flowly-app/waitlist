@@ -203,7 +203,7 @@ trigger_rebase() {
     fi
     
     # Trigger the auto-rebase workflow
-    gh workflow run auto-rebase.yml \
+    gh workflow run pipeline.yml \
         --field pr_number="$pr_number" \
         --field force_rebase="true"
     
