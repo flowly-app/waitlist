@@ -21,6 +21,7 @@ print_help() {
     echo "Commands:"
     echo "  start <feature-name>    Create a new feature branch from develop"
     echo "  finish                 Complete current feature and create PR"
+    echo "  cleanup                Clean up merged feature branches"
     echo "  sync                   Sync with develop branch"
     echo "  status                 Show current git status"
     echo "  help                   Show this help message"
@@ -28,7 +29,7 @@ print_help() {
     echo "Examples:"
     echo "  $0 start add-login"
     echo "  $0 finish"
-    echo "  $0 sync"
+    echo "  $0 cleanup"
 }
 
 start_feature() {
@@ -89,6 +90,39 @@ sync_with_develop() {
     echo -e "${GREEN}✓ Synced with develop${NC}"
 }
 
+
+cleanup_merged_branches() {
+    echo -e "${YELLOW}Cleaning up merged feature branches...${NC}"
+    
+    # Switch to develop and pull latest
+    git checkout develop
+    git pull origin develop
+    
+    # Find and delete merged feature branches
+    MERGED_BRANCHES=$(git branch --merged | grep -E '^[[:space:]]*feature/' | sed 's/^[[:space:]]*//')
+    
+    if [ -z "$MERGED_BRANCHES" ]; then
+        echo -e "${BLUE}No merged feature branches found${NC}"
+        return
+    fi
+    
+    echo -e "${BLUE}Found merged feature branches:${NC}"
+    echo "$MERGED_BRANCHES"
+    
+    # Delete local branches
+    echo "$MERGED_BRANCHES" | xargs -r git branch -d
+    
+    # Delete remote branches
+    echo "$MERGED_BRANCHES" | while read branch; do
+        if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+            git push origin --delete "$branch"
+            echo -e "${GREEN}✓ Deleted remote branch: $branch${NC}"
+        fi
+    done
+    
+    echo -e "${GREEN}✓ Cleanup completed${NC}"
+}
+
 show_status() {
     echo -e "${BLUE}Current Git Status:${NC}"
     git status
@@ -105,6 +139,9 @@ case "$1" in
         ;;
     "finish")
         finish_feature
+        ;;
+    "cleanup")
+        cleanup_merged_branches
         ;;
     "sync")
         sync_with_develop
