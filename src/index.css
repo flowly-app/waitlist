@@ -192,3 +192,12 @@ textarea,
 select {
 	font-size: 1.6rem; /* 16px minimum to prevent iOS Safari zoom */
 }
+
+/* Media queries for medium and large screens */
+@media (min-width: 768px) {
+	input,
+	textarea,
+	select {
+		font-size: 1.4rem; /* Smaller font size for medium screens and up */
+	}
+}

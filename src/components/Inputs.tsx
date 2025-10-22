@@ -7,7 +7,7 @@ interface InputFieldProps extends React.ComponentProps<"input"> {
 }
 
 export function InputField({
-	placeholder = "Your email address",
+	placeholder,
 	className,
 	...props
 }: InputFieldProps) {
